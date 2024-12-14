@@ -31,6 +31,10 @@
         "projectId": "8aeb4b5c-d51f-40b4-9d25-ddd2779e7c1f"
       }
     },
-    "owner": "skilltune"
+    "owner": "skilltune",
+    "plugins": [
+      "expo-router",
+      "expo-font"
+    ]
   }
 }
