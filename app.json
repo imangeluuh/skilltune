@@ -34,7 +34,7 @@
     "owner": "skilltune",
     "plugins": [
       "expo-router",
-      "expo-font"
+      "expo-secure-store"
     ]
   }
 }

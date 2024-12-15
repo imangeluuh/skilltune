@@ -1,4 +1,9 @@
-import { FlatList, StyleSheet, ScrollView } from "react-native";
+import {
+  FlatList,
+  StyleSheet,
+  ScrollView,
+  ActivityIndicator,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import React from "react";
 import { LESSONS } from "@/assets/lessons";
@@ -13,8 +18,15 @@ import {
 } from "@/src/components/ui/avatar";
 import { HStack } from "@/src/components/ui/hstack";
 import { VStack } from "@/src/components/ui/vstack";
+import { useAuth } from "../providers/AuthProvider";
+import { Redirect } from "expo-router";
 
 const Home = () => {
+  const { session, user, mounting } = useAuth();
+
+  if (mounting) return <ActivityIndicator />;
+  if (!session) return <Redirect href="/auth" />;
+
   return (
     <SafeAreaView edges={["top", "bottom"]} style={{ flex: 1 }}>
       <ScrollView>
