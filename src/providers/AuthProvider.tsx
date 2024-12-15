@@ -33,14 +33,12 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
       } = await supabase.auth.getSession();
 
       setSession(session);
-      console.log("1st session", session);
       if (session) {
-        // const { data: user, error } = await supabase
-        //   .from("users")
-        //   .select("*")
-        //   .eq("email", session.user.email)
-        //   .single();
-
+        const { data: user, error } = await supabase
+          .from("users")
+          .select("*")
+          .eq("email", session.user.email)
+          .single();
         if (error) {
           console.error("error", error);
         } else {

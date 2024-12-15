@@ -1,4 +1,4 @@
-import { Button } from "react-native";
+import { View } from "react-native";
 import { makeRedirectUri } from "expo-auth-session";
 import * as QueryParams from "expo-auth-session/build/QueryParams";
 import * as WebBrowser from "expo-web-browser";
@@ -6,6 +6,7 @@ import * as Linking from "expo-linking";
 import { supabase } from "../lib/supabase";
 import { useAuth } from "../providers/AuthProvider";
 import { Redirect } from "expo-router";
+import { Button, ButtonText } from "@/src/components/ui/button";
 
 WebBrowser.maybeCompleteAuthSession(); // required for web only
 const redirectTo = makeRedirectUri();
@@ -40,6 +41,7 @@ const performOAuth = async () => {
     data?.url ?? "",
     redirectTo
   );
+  console.log("res", res);
 
   if (res.type === "success") {
     const { url } = res;
@@ -49,11 +51,18 @@ const performOAuth = async () => {
 
 export default function Auth() {
   const { session } = useAuth();
+
   if (session) return <Redirect href="/" />;
 
   // Handle linking into app from email app.
   const url = Linking.useURL();
   if (url) createSessionFromUrl(url);
 
-  return <Button onPress={performOAuth} title="Sign in with Google" />;
+  return (
+    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+      <Button onPress={performOAuth} size="lg" variant="solid" action="primary">
+        <ButtonText>Sign in with Google</ButtonText>
+      </Button>
+    </View>
+  );
 }

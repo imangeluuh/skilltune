@@ -5,7 +5,6 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import React from "react";
 import { LESSONS } from "@/assets/lessons";
 import { LessonList } from "../components/LessonList";
 import { Card } from "@/src/components/ui/card";
@@ -20,12 +19,20 @@ import { HStack } from "@/src/components/ui/hstack";
 import { VStack } from "@/src/components/ui/vstack";
 import { useAuth } from "../providers/AuthProvider";
 import { Redirect } from "expo-router";
+import { View } from "react-native";
 
 const Home = () => {
   const { session, user, mounting } = useAuth();
 
-  if (mounting) return <ActivityIndicator />;
   if (!session) return <Redirect href="/auth" />;
+
+  if (mounting) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <ActivityIndicator size="large" />
+      </View>
+    );
+  }
 
   return (
     <SafeAreaView edges={["top", "bottom"]} style={{ flex: 1 }}>
@@ -40,22 +47,25 @@ const Home = () => {
           }}
         >
           <Avatar size="xl">
-            <AvatarFallbackText>Jane Doe</AvatarFallbackText>
+            <AvatarFallbackText>{user?.name}</AvatarFallbackText>
             <AvatarImage
               source={{
-                uri: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=687&q=80",
+                uri: user?.avatar_url,
               }}
             />
           </Avatar>
           <VStack
             space="sm"
-            style={{ justifyContent: "center", alignItems: "center" }}
+            style={{
+              justifyContent: "center",
+              alignItems: "center",
+            }}
           >
             <Heading size="2xl" className="ml-3">
               Hi,
             </Heading>
             <Heading size="2xl" className="ml-3">
-              Jane Doe
+              {user?.name}
             </Heading>
           </VStack>
         </HStack>
