@@ -29,7 +29,8 @@
     "extra": {
       "eas": {
         "projectId": "8aeb4b5c-d51f-40b4-9d25-ddd2779e7c1f"
-      }
+      },
+      "redirectUri": "skilltune://auth-callback"
     },
     "owner": "skilltune",
     "plugins": [

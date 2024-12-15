@@ -1,83 +1,59 @@
-import { StatusBar } from "expo-status-bar";
-import { StyleSheet, Text, View, Image } from "react-native";
-import { GoogleSigninButton } from "@react-native-google-signin/google-signin";
-import * as Google from "expo-auth-session/providers/google";
+import { Button } from "react-native";
+import { makeRedirectUri } from "expo-auth-session";
+import * as QueryParams from "expo-auth-session/build/QueryParams";
 import * as WebBrowser from "expo-web-browser";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useEffect, useState } from "react";
-import {
-  EXPO_CLIENT_ID,
-  EXPO_ANDROID_CLIENT_ID,
-  EXPO_IOS_CLIENT_ID,
-  EXPO_WEB_CLIENT_ID,
-} from "@env";
+import * as Linking from "expo-linking";
+import { supabase } from "../lib/supabase";
+import { useAuth } from "../providers/AuthProvider";
+import { Redirect } from "expo-router";
 
-WebBrowser.maybeCompleteAuthSession();
+WebBrowser.maybeCompleteAuthSession(); // required for web only
+const redirectTo = makeRedirectUri();
+
+const createSessionFromUrl = async (url: string) => {
+  const { params, errorCode } = QueryParams.getQueryParams(url);
+
+  if (errorCode) throw new Error(errorCode);
+  const { access_token, refresh_token } = params;
+
+  if (!access_token) return;
+
+  const { data, error } = await supabase.auth.setSession({
+    access_token,
+    refresh_token,
+  });
+  if (error) throw error;
+  return data.session;
+};
+
+const performOAuth = async () => {
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: {
+      redirectTo,
+      skipBrowserRedirect: true,
+    },
+  });
+  if (error) throw error;
+
+  const res = await WebBrowser.openAuthSessionAsync(
+    data?.url ?? "",
+    redirectTo
+  );
+
+  if (res.type === "success") {
+    const { url } = res;
+    await createSessionFromUrl(url);
+  }
+};
 
 export default function Auth() {
-  const [user, setUser] = useState(null);
+  const { session } = useAuth();
+  if (session) return <Redirect href="/" />;
 
-  const [request, response, promptAsync] = Google.useAuthRequest({
-    expoClientId: EXPO_CLIENT_ID,
-    androidClientId: EXPO_ANDROID_CLIENT_ID,
-    iosClientId: EXPO_IOS_CLIENT_ID,
-    webClientId: EXPO_WEB_CLIENT_ID,
-    scopes: ["profile", "email"],
-  });
+  // Handle linking into app from email app.
+  const url = Linking.useURL();
+  if (url) createSessionFromUrl(url);
 
-  useEffect(() => {
-    handleToken();
-  }, [response]);
-
-  async function handleToken() {
-    getUserInfo(response.authentication.accessToken);
-  }
-
-  const getUserInfo = async (token: string) => {
-    if (!token) return;
-
-    try {
-      const response = await fetch(
-        `https://www.googleapis.com/userinfo/v2/me`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-      const userInfo = await response.json();
-      await AsyncStorage.setItem("userInfo", JSON.stringify(userInfo));
-      setUser(userInfo);
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  return (
-    <View style={styles.container}>
-      {!user ? (
-        <GoogleSigninButton
-          size={GoogleSigninButton.Size.Wide}
-          color={GoogleSigninButton.Color.Dark}
-          onPress={() => {
-            promptAsync();
-          }}
-        />
-      ) : (
-        <View>
-          <Image src=""></Image>
-          <Text>Email: {user.email}</Text>
-          <Text>Name: {user.name}</Text>
-        </View>
-      )}
-      <StatusBar style="auto" />
-    </View>
-  );
+  return <Button onPress={performOAuth} title="Sign in with Google" />;
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-});
