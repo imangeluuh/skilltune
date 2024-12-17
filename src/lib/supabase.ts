@@ -4,6 +4,7 @@ import * as SecureStore from 'expo-secure-store';
 import * as aesjs from 'aes-js';
 import 'react-native-get-random-values';
 import { EXPO_SUPABASE_URL, EXPO_SUPABASE_ANON_KEY } from "@env";
+import { Database } from "../types/database.types";
 
 const supabaseUrl = EXPO_SUPABASE_URL;
 const supabaseAnonKey = EXPO_SUPABASE_ANON_KEY;
@@ -54,7 +55,7 @@ class LargeSecureStore {
   }
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
   auth: {
     storage: new LargeSecureStore(),
     autoRefreshToken: true,
