@@ -7,6 +7,9 @@ import { supabase } from "../lib/supabase";
 import { useAuth } from "../providers/AuthProvider";
 import { Redirect } from "expo-router";
 import { Button, ButtonText } from "@/src/components/ui/button";
+import { ChartNoAxesCombined } from "lucide-react-native";
+import { Text } from "@/src/components/ui/text";
+import { VStack } from "@/src/components/ui/vstack";
 
 WebBrowser.maybeCompleteAuthSession(); // required for web only
 const redirectTo = makeRedirectUri();
@@ -41,7 +44,6 @@ const performOAuth = async () => {
     data?.url ?? "",
     redirectTo
   );
-  console.log("res", res);
 
   if (res.type === "success") {
     const { url } = res;
@@ -59,7 +61,15 @@ export default function Auth() {
   if (url) createSessionFromUrl(url);
 
   return (
-    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+    <View
+      style={{ flex: 1, justifyContent: "space-evenly", alignItems: "center" }}
+    >
+      <VStack space="lg" className="justify-center items-center">
+        <ChartNoAxesCombined strokeWidth={3} size={100} />
+        <Text size="4xl" className="mb-5 font-bold text-black">
+          SkillTune
+        </Text>
+      </VStack>
       <Button onPress={performOAuth} size="lg" variant="solid" action="primary">
         <ButtonText>Sign in with Google</ButtonText>
       </Button>

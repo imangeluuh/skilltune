@@ -1,4 +1,9 @@
-import { StyleSheet, View } from "react-native";
+import {
+  ActivityIndicator,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import React from "react";
 import { HStack } from "@/src/components/ui/hstack";
 import { VStack } from "@/src/components/ui/vstack";
@@ -10,8 +15,24 @@ import {
 import { Heading } from "@/src/components/ui/heading";
 import { Card } from "@/src/components/ui/card";
 import { Text } from "@/src/components/ui/text";
+import { LogOut } from "lucide-react-native";
+import { supabase } from "../lib/supabase";
+import { useAuth } from "../providers/AuthProvider";
 
 const ListHeader = () => {
+  const { user, mounting } = useAuth();
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+  };
+
+  if (mounting) {
+    return (
+      <View style={{ padding: 10, alignItems: "center" }}>
+        <ActivityIndicator size="large" />
+      </View>
+    );
+  }
+
   return (
     <View>
       <HStack
@@ -24,10 +45,10 @@ const ListHeader = () => {
         }}
       >
         <Avatar size="xl">
-          <AvatarFallbackText>name</AvatarFallbackText>
+          <AvatarFallbackText>{user.name}</AvatarFallbackText>
           <AvatarImage
             source={{
-              uri: "",
+              uri: user && user.avatar_url,
             }}
           />
         </Avatar>
@@ -42,9 +63,12 @@ const ListHeader = () => {
             Hi,
           </Heading>
           <Heading size="2xl" className="ml-3">
-            name
+            {user && user.name}
           </Heading>
         </VStack>
+        <TouchableOpacity onPress={handleSignOut}>
+          <LogOut color={"red"} />
+        </TouchableOpacity>
       </HStack>
 
       {/* <Heading size="lg" className="ml-3 mt-3">

@@ -12,7 +12,7 @@ export default function RootLayout() {
           <Stack>
             <Stack.Screen
               name="(home)"
-              options={{ headerShown: true, title: "SkillTune" }}
+              options={{ headerShown: false, title: "SkillTune" }}
             />
             <Stack.Screen name="lessons" options={{ headerShown: false }} />
             <Stack.Screen name="auth" options={{ headerShown: false }} />

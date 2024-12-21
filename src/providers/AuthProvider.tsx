@@ -23,7 +23,7 @@ const AuthContext = createContext<AuthData>({
 
 export const AuthProvider = ({ children }: PropsWithChildren) => {
   const [session, setSession] = useState<Session | null>(null);
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState<any>(null);
   const [mounting, setMounting] = useState(true);
 
   useEffect(() => {
@@ -34,6 +34,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
 
       setSession(session);
       if (session) {
+        setMounting(true);
         const { data: user, error } = await supabase
           .from("users")
           .select("*")
@@ -45,12 +46,12 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
           setUser(user);
         }
       }
-
       setMounting(false);
     };
 
     fetchSession();
     supabase.auth.onAuthStateChange((_event, session) => {
+      fetchSession();
       setSession(session);
     });
   }, []);
